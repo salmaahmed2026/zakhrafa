@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -41,7 +40,6 @@
       }
     }
   </style>
-<link rel="stylesheet" href="/index.css">
 </head>
 <body class="bg-gray-900 text-white">
 
@@ -103,14 +101,28 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- DATA & CONFIG ---
-    // Note: On GitHub Pages, if the site is in a subfolder (e.g., user.github.io/repo/),
-    // pathname will include the repo name. We need a robust way to get the route.
-    // This simple approach works for root deployment or if the router logic is aware of the base path.
-    const getPath = () => {
-        // For GitHub pages, path might be /repo-name/page. We're interested in the /page part.
-        // This simple solution assumes a flat routing structure and root deployment.
-        // For a sub-directory, a base path config would be needed.
+    const getBasePath = () => {
+        const path = window.location.pathname;
+        if (window.location.hostname.endsWith('github.io')) {
+            const segments = path.split('/').filter(Boolean);
+            if (segments.length > 0) {
+                 if (!segments[0].endsWith('.html')) {
+                    return '/' + segments[0];
+                 }
+            }
+        }
+        return ''; // Root deployment for localhost or custom domains
+    };
+    const basePath = getBasePath();
+
+    const getAppPath = () => {
         let path = window.location.pathname;
+        if (path.startsWith(basePath)) {
+            path = path.substring(basePath.length);
+        }
+        if (!path.startsWith('/')) {
+            path = '/' + path;
+        }
         if (path.length > 1 && path.endsWith('/')) {
             path = path.slice(0, -1);
         }
@@ -250,13 +262,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- RENDER FUNCTIONS ---
     function renderNav() {
-        navLinksContainer.innerHTML = navLinks.map(link => `
+        navLinksContainer.innerHTML = navLinks.map(link => {
+             const href = link.path === '/' ? (basePath || '/') : `${basePath}${link.path}`;
+             return `
             <li>
-                <a href="${link.path}" class="px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base font-semibold text-gray-300 hover:bg-purple-700/50 transition-all duration-300 block">
+                <a href="${href}" class="px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base font-semibold text-gray-300 hover:bg-purple-700/50 transition-all duration-300 block">
                     ${link.label}
                 </a>
             </li>
-        `).join('');
+        `}).join('');
     }
     
     function debounce(func, delay) {
@@ -408,20 +422,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const link = e.target.closest('a');
         if (link && link.origin === window.location.origin) {
             e.preventDefault();
-            const path = link.getAttribute('href');
-            if (path !== window.location.pathname) {
-                history.pushState({}, '', path);
+            const href = link.getAttribute('href');
+            if (href !== window.location.pathname) {
+                history.pushState({}, '', href);
                 router();
             }
         }
     });
 
     function router() {
-        const path = getPath();
-        const route = routes[path] || routes['/']; // Fallback to home page for unknown paths
+        const appPath = getAppPath();
+        const route = routes[appPath] || routes['/']; // Fallback to home page for unknown paths
 
         document.title = route.title;
-        // In a static setup, we can't change meta tags for SEO crawlers after load, but we set good defaults.
 
         switch(route.type) {
             case 'decoration':
@@ -437,7 +450,18 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Update active nav link
         navLinksContainer.querySelectorAll('a').forEach(a => {
-            if (a.getAttribute('href') === path) {
+            const href = a.getAttribute('href');
+            let linkAppPath = href;
+            // Also handle the case where basePath is empty string
+            if (basePath && href.startsWith(basePath)) {
+                 linkAppPath = href.substring(basePath.length);
+            }
+            if (!linkAppPath.startsWith('/')) {
+                linkAppPath = '/' + linkAppPath;
+            }
+            if(linkAppPath === '') linkAppPath = '/';
+
+            if (linkAppPath === appPath) {
                 a.classList.add('bg-purple-600', 'text-white', 'shadow-md');
             } else {
                 a.classList.remove('bg-purple-600', 'text-white', 'shadow-md');
@@ -453,6 +477,5 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
-<script type="module" src="/index.tsx"></script>
 </body>
 </html>
