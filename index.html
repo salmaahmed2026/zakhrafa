@@ -321,6 +321,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const template = document.getElementById('decoration-page-template').content.cloneNode(true);
         appContent.innerHTML = '';
         appContent.appendChild(template);
+        appContent.querySelector('[data-page]').classList.add('active');
 
         appContent.querySelector('#page-title').textContent = route.data.title;
         appContent.querySelector('#page-description').textContent = route.data.description;
@@ -367,6 +368,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const template = document.getElementById(templateId).content.cloneNode(true);
         appContent.innerHTML = '';
         appContent.appendChild(template);
+        appContent.querySelector('[data-page]').classList.add('active');
+
 
         appContent.querySelector('#page-title').textContent = route.data.title;
         appContent.querySelector('#page-description').textContent = route.data.description;
