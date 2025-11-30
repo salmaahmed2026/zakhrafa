@@ -1,0 +1,456 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <title>زخرفة النصوص والأسماء | زخارف يقبلها الفيس بوك</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="موقع لزخرفة الاسماء والكلمات باحترافية وبالخطوط العربية والإنجليزية أون لاين, زخارف عربية وإنجليزية جميلة جاهزة للنسخ ومشاركتها على فيسبوك وإنستغرام." />
+  <meta name="keywords" content="زخرفة, زخرفة اسماء, زخرفة نصوص, زخارف, زخرفة يقبلها الفيس بوك, زخرفة بالعربي, زخرفة بالانجليزي" />
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Cairo', sans-serif; }
+    [data-page] { display: none; }
+    [data-page].active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+      animation: fadeIn 0.5s ease-out forwards;
+    }
+    .animate-fade-in-item {
+      animation: fadeIn 0.5s ease-out forwards;
+    }
+    @keyframes popup {
+      0% { transform: translateY(5px) translateX(-50%) scale(0.9); opacity: 0; }
+      50% { transform: translateY(-5px) translateX(-50%) scale(1.05); opacity: 1; }
+      100% { transform: translateY(-5px) translateX(-50%) scale(1.05); opacity: 1; }
+    }
+    .animate-popup {
+      animation: popup 0.3s ease-out forwards;
+    }
+    @media (min-width: 1400px) {
+      .xl\:grid-cols-15 {
+        grid-template-columns: repeat(15, minmax(0, 1fr));
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-900 text-white">
+
+  <div class="min-h-screen bg-gradient-to-b from-gray-900 to-purple-900/50 text-white p-4 sm:p-8 font-sans">
+  
+    <nav class="max-w-6xl mx-auto mb-8 bg-gray-800/50 backdrop-blur-sm rounded-2xl shadow-lg p-2">
+      <ul id="nav-links" class="flex flex-wrap items-center justify-center gap-2 sm:gap-4">
+        <!-- Nav links will be injected by JavaScript -->
+      </ul>
+    </nav>
+  
+    <main id="app-content">
+        <!-- Page content will be injected by JavaScript -->
+    </main>
+  
+    <footer class="text-center mt-16 py-6 border-t border-gray-700/50">
+      <p class="text-gray-400">&copy; <span id="current-year"></span> زخرفة. جميع الحقوق محفوظة.</p>
+    </footer>
+  </div>
+
+  <!-- Page Templates -->
+  <template id="decoration-page-template">
+    <div data-page="decoration" class="animate-fade-in">
+      <header class="text-center mb-8">
+        <h1 id="page-title" class="text-4xl sm:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500"></h1>
+        <p id="page-description" class="text-lg text-gray-300 mt-4 max-w-2xl mx-auto"></p>
+      </header>
+      <div class="max-w-4xl mx-auto">
+        <div class="bg-gray-800/50 backdrop-blur-sm p-6 rounded-2xl shadow-2xl shadow-purple-500/20">
+          <label for="text-input" class="block text-right mb-2 text-lg font-semibold text-gray-200">أدخل النص هنا:</label>
+          <textarea id="text-input" rows="4" placeholder="اكتب شيئاً..." class="w-full p-4 bg-gray-900 border-2 border-gray-700 rounded-lg text-white text-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300 resize-none"></textarea>
+        </div>
+        <div id="results-container" class="mt-10"></div>
+      </div>
+    </div>
+  </template>
+
+  <template id="symbols-page-template">
+     <div data-page="symbols" class="animate-fade-in">
+        <header class="text-center mb-8">
+            <h1 id="page-title" class="text-4xl sm:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500"></h1>
+            <p id="page-description" class="text-lg text-gray-300 mt-4 max-w-2xl mx-auto"></p>
+        </header>
+        <div id="symbols-container" class="max-w-6xl mx-auto"></div>
+     </div>
+  </template>
+
+  <template id="islamic-symbols-page-template">
+    <div data-page="islamic-symbols" class="animate-fade-in">
+        <header class="text-center mb-8">
+            <h1 id="page-title" class="text-4xl sm:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-300 to-green-400"></h1>
+            <p id="page-description" class="text-lg text-gray-300 mt-4 max-w-2xl mx-auto"></p>
+        </header>
+        <div id="islamic-symbols-container" class="max-w-6xl mx-auto"></div>
+    </div>
+  </template>
+  
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    // --- DATA & CONFIG ---
+    // Note: On GitHub Pages, if the site is in a subfolder (e.g., user.github.io/repo/),
+    // pathname will include the repo name. We need a robust way to get the route.
+    // This simple approach works for root deployment or if the router logic is aware of the base path.
+    const getPath = () => {
+        // For GitHub pages, path might be /repo-name/page. We're interested in the /page part.
+        // This simple solution assumes a flat routing structure and root deployment.
+        // For a sub-directory, a base path config would be needed.
+        let path = window.location.pathname;
+        if (path.length > 1 && path.endsWith('/')) {
+            path = path.slice(0, -1);
+        }
+        return path || '/';
+    };
+
+
+    const routes = {
+        '/': {
+            type: 'decoration',
+            title: 'زخرفة اسماء ونصوص | زخارف احترافية للنسخ',
+            data: { title: 'زخرفة اسماء ونصوص', description: 'أداة زخرفة متكاملة لزخرفة الأسماء والنصوص بالعربية والإنجليزية. اختر من بين عشرات الأنماط الاحترافية وانسخها بسهولة لاستخدامها في الألعاب ووسائل التواصل الاجتماعي.' }
+        },
+        '/pubg': {
+            type: 'decoration',
+            title: 'زخرفة أسماء ببجي | زخارف PUBG احترافية',
+            data: { title: 'زخرفة أسماء ببجي (PUBG)', description: 'اجعل اسمك في ببجي أسطورياً! زخرفة أسماء ببجي احترافية ومقبولة. احصل على ألقاب فريدة ومميزة تثير الرعب في قلوب منافسيك. انسخ اسمك المزخرف بنقرة واحدة.' }
+        },
+        '/freefire': {
+            type: 'decoration',
+            title: 'زخرفة اسماء فري فاير | زخارف Free Fire',
+            data: { title: 'زخرفة أسماء فري فاير', description: 'تميز في عالم فري فاير بأسماء مزخرفة لا مثيل لها. زخارف وأشكال ورموز رائعة لجعل اسمك فريداً. انسخ اسمك المفضل بسهولة وانضم للمعركة بأناقة.' }
+        },
+        '/tiktok': {
+            type: 'decoration',
+            title: 'زخرفة اسماء تيك توك | زخارف TikTok',
+            data: { title: 'زخرفة أسماء تيك توك', description: 'لفت الانتباه على تيك توك يبدأ من اسمك! زخرف اسم حسابك أو البايو بأشكال عصرية وجذابة. احصل على متابعين جدد بفضل ملفك الشخصي المزخرف والمميز.' }
+        },
+        '/facebook': {
+            type: 'decoration',
+            title: 'زخرفة اسماء فيسبوك | زخارف Facebook مقبولة',
+            data: { title: 'زخرفة أسماء فيسبوك', description: 'جدد شكل اسمك ومنشوراتك على فيسبوك بزخارف أنيقة ومقبولة. زخرفة نصوص وأسماء بالعربي والإنجليزي لجعل حسابك على فيسبوك أكثر تميزاً وجمالاً.' }
+        },
+        '/instagram': {
+            type: 'decoration',
+            title: 'زخرفة اسماء انستا | زخارف Instagram',
+            data: { title: 'زخرفة أسماء انستقرام', description: 'اجعل حسابك على انستقرام تحفة فنية! زخرفة أسماء وبايو انستا بأجمل الخطوط والرموز. انسخ الزخرفة التي تعجبك وقم بلصقها مباشرة في ملفك الشخصي.' }
+        },
+        '/islamic': {
+            type: 'islamic-symbols',
+            title: 'زخارف ورموز إسلامية للنسخ | آيات وعبارات دينية',
+            data: { title: 'زخارف ورموز إسلامية جاهزة للنسخ', description: 'مكتبة شاملة من الرموز والعبارات الإسلامية الجاهزة للنسخ، مثل ﷽، ﷲ، ﷺ، وعلامات الوقف. استخدمها لتزيين منشوراتك ورسائلك بلمسة إيمانية.' }
+        },
+        '/symbols': {
+            type: 'symbols',
+            title: 'زخارف ورموز للنسخ | إيموجي ورموز نادرة',
+            data: { title: 'زخارف ورموز جاهزة للنسخ', description: 'مكتبة ضخمة من الرموز، الإيموجي، الأشكال والزخارف النادرة الجاهزة للنسخ واللصق. استخدمها في ببجي، فيسبوك، انستقرام وأي مكان آخر.' }
+        }
+    };
+
+    const navLinks = [
+        { path: '/', label: 'زخرفة عامة' }, { path: '/pubg', label: 'ببجي' }, { path: '/freefire', label: 'فري فاير' },
+        { path: '/tiktok', label: 'تيك توك' }, { path: '/facebook', label: 'فيسبوك' }, { path: '/instagram', label: 'انستقرام' },
+        { path: '/islamic', label: 'زخارف إسلامية' }, { path: '/symbols', label: 'رموز للنسخ' }
+    ];
+
+    const decorationWelcomeContent = `
+      <div class="text-right mt-12 p-8 bg-gray-800/30 rounded-lg space-y-8 text-gray-300 leading-loose animate-fade-in">
+        <div>
+          <h3 class="text-2xl font-bold text-purple-300 mb-4">مرحباً بك في موقع زخرفة النصوص الاحترافي!</h3>
+          <p>هنا يمكنك تحويل أي نص أو اسم إلى عمل فني فريد ومميز. موقعنا يوفر لك أداة زخرفة متقدمة وسهلة الاستخدام لإنشاء أسماء ونصوص مزخرفة باللغتين العربية والإنجليزية، مقبولة في جميع المنصات والألعاب.</p>
+        </div>
+        <div>
+          <h4 class="text-xl font-semibold text-purple-400 mb-3">لماذا تختار موقعنا لزخرفة اسمك؟</h4>
+          <ul class="list-disc list-inside space-y-2 pr-4">
+            <li><strong>تشكيلة واسعة:</strong> نقدم عشرات الأنماط والخطوط المختلفة، من زخارف الألعاب النارية مثل ببجي وفري فاير إلى الخطوط الإنجليزية الأنيقة.</li>
+            <li><strong>سهولة الاستخدام:</strong> اكتب النص في المربع أعلاه، وستظهر لك جميع أشكال الزخرفة تلقائياً. انسخ ما يعجبك بنقرة واحدة!</li>
+            <li><strong>توافق كامل:</strong> جميع زخارفنا تم اختبارها لتعمل بشكل مثالي على أشهر المنصات مثل فيسبوك، انستقرام، تيك توك، وغيرها.</li>
+          </ul>
+        </div>
+         <div>
+          <h4 class="text-xl font-semibold text-purple-400 mb-3">زخرفة أسماء للألعاب ووسائل التواصل الاجتماعي</h4>
+          <p>هل تبحث عن اسم مميز لحسابك في <span class="font-bold text-white">PUBG</span> أو <span class="font-bold text-white">Free Fire</span>؟ أو ربما تريد تزيين البايو الخاص بك في <span class="font-bold text-white">انستقرام</span> أو <span class="font-bold text-white">تيك توك</span>؟ لقد وصلت إلى المكان الصحيح.</p>
+        </div>
+        <div class="text-center pt-4">
+          <p class="text-lg font-bold text-white">ابدأ الآن واطلق العنان لإبداعك!</p>
+        </div>
+      </div>`;
+
+    const symbolCategories = [
+        { title: 'رموز شائعة ومميزة', symbols: ['💙','💎','✨','😎','💻','✔️','🌙','🤣','🎤','💜','🎮','❤️','😍','🖤','⚔️','😂','💕','🎧','🌹','📌','🏳️‍🌈','👑','🎼','💛','😊','🧡','📞','❣️','🔊','💫','💖','🤩','💞','☕️','💔','🌸','⚜️','🔪','⚠️','🥀','😭','🎥','🔫','📍','🔥','⚡️','👉','🇹🇷','🌻','😈','💬','😅','😉','🔒','❗️','👍','🤔','👌','📝','😘','😔','🌺','✈️','💗','📜','📚','💚','⭐️','🤪','📷','🐶','🐱','🎶','🍒','🤗','💰','📱','🐺','☁️','❌','🎨','💣','🔰','🐰','🙄','♥️','🌞','👀','📲','☪️','👻','🔞','😁','😏','😴','💓','🎸','🤬','🔨','🦁','🎉','🦋','🌿','🔴','🏆','🦄','🌼','🍑','💡','🔧','🐾','🗡','🎬','🐍','⚙️','🛠','🔱','☄️','🌊','😡','✏️','🍁','🙂','🤖','⛏','⛔️','🛡','💘','🚫','🍃','😄','💀','📸','🔮','⚽️','🌟','🍪','🎵','🔔','🌷','💪','😱','🐼','💦','😜','🤧','🍓','📣','📢','🐉','🤭','🇧🇷','👥','🍌','⚖️','🔑','💟','☺️','🕹','💸','🎀','🎈','🕊','🤤','🌌','📊','📖','✝️','🙏','✌️','🍀','❓','💯','☎️','🚬','💊','📋','🔐','🎲','💋','👊','💼','🍷','⏳','⚒','💉','🔸','🎹','🦊','🐻','☘️','👤','🖕','👇','💍','😋'] },
+        { title: 'رموز القلوب', symbols: ['💞','💝','💘','❣️','💖','💕','💟','💔','💓','💗','🖤','💜','💛','💚','♥','♡','❤','❥','❣','❦','❧','დ','ღ','۵','ლ','오','❤️️','💙','🧡','💑','💋','💒'] },
+        { title: 'أقواس وزخارف نصية', symbols: ['꧁','꧂','༺','༻','☬','Ӂ','༒','⫷','⫸','ツ','『','』','「','」','【','】','〖','〗','〔','〕','《','》','«','»','‹','›','༼','༽','╭','╮','╰','╯'] },
+        { title: 'رموز النجوم', symbols: ['★','☆','✡','✦','✧','✩','✪','✫','✬','✭','✮','✯','✰','⁂','⁎','⁑','✢','✣','✤','✥','✱','✲','✳','✴','✵','✶','✷','✸','✹','✺','✻','✼','✽','✾','✿','❀','❁','❂','❃','❇','❈','❉','❊','❋','❄','❆','❅','⋆','≛','ᕯ','✲','࿏','۞','⭒','⍟','⭐','🌠','🌟','💫','✨','🌃','🔯'] },
+        { title: 'رموز الأسهم', symbols: ['←','↑','→','↓','↔','↕','↖','↗','↘','↙','↚','↛','↜','↝','↞','↟','↠','↡','↢','↣','↤','↥','↦','↧','↨','↩','↪','↫','↬','↭','↮','↯','↰','↱','↲','↳','↴','↵','↶','↷','↸','↹','↺','↻','↼','↽','↾','↿','⇀','⇁','⇂','⇃','⇄','⇅','⇆','⇇','⇈','⇉','⇊','⇋','⇌','⇍','⇎','⇏','⇐','⇑','⇒','⇓','⇔','⇕','⇖','⇗','⇘','⇙','⇚','⇛','⇜','⇝','⇞','⇟','⇠','⇡','⇢','⇣','⇤','⇥','⇦','⇧','⇨','⇩','⇪','➔','➘','➙','➚','➛','➜','➝','➞','➟','➠','➡','➢','➣','➤','➥','➦','➧','➨','➩','➪','➫','➬','➭','➮','➯','➱','➲','➳','➴','➵','➶','➷','➸','➹','➺','➻','➼','➽','➾','⤴','⤵','⬅','⬆','⬇'] },
+        { title: 'رموز الألعاب', symbols: ['♡','♥','♠','♤','♢','♦','♣','♧','🃏','🎰','⚀','⚁','⚂','⚃','⚄','⚅','🎲','🎯','🎱','♗','♝','♘','♞','♙','♟','♕','♛','♔','♚','♖','♜','⚔'] }
+    ];
+
+    const islamicSymbolCategories = [
+        { title: 'عبارات أساسية', symbols: ['﷽', 'ﷲ', 'ﷺ', 'ﷴ', 'ﷻ', 'عليه السلام', 'رضي الله عنه', 'رضي الله عنها', 'سبحان الله', 'الحمد لله', 'لا إله إلا الله', 'الله أكبر'] },
+        { title: 'رموز إسلامية', symbols: ['☪', '﷼', '🕌', '🕋', '📿', '🤲', '🙏'] },
+        { title: 'علامات وقف قرآنية', symbols: ['۞', '۝', '۩', '⛊', '⛉', '⛈', '⛇', '⛶', '☫'] },
+        { title: 'أقواس وزخارف', symbols: ['﴾','﴿','«','»','〰','•','·','∙', '❁', '⚘', '❀', '~'] },
+        { title: 'أرقام عربية', symbols: ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'] }
+    ];
+
+    const DecorationUtil = {
+        upsideDownMap: { 'a': 'ɐ', 'b': 'q', 'c': 'ɔ', 'd': 'p', 'e': 'ǝ', 'f': 'ɟ', 'g': 'ƃ', 'h': 'ɥ', 'i': 'ı', 'j': 'ɾ', 'k': 'ʞ', 'l': 'l', 'm': 'ɯ', 'n': 'u', 'o': 'o', 'p': 'd', 'q': 'b', 'r': 'ɹ', 's': 's', 't': 'ʇ', 'u': 'n', 'v': 'ʌ', 'w': 'ʍ', 'x': 'x', 'y': 'ʎ', 'z': 'z', 'A': '∀', 'B': 'B', 'C': 'Ɔ', 'D': 'D', 'E': 'Ǝ', 'F': 'Ⅎ', 'G': 'פ', 'H': 'H', 'I': 'I', 'J': 'ſ', 'K': 'K', 'L': '˥', 'M': 'W', 'N': 'N', 'O': 'O', 'P': 'Ԁ', 'Q': 'Q', 'R': 'R', 'S': 'S', 'T': '┴', 'U': '∩', 'V': 'Λ', 'W': 'M', 'X': 'X', 'Y': '⅄', 'Z': 'Z' },
+        circledMap: { 'a': 'ⓐ', 'b': 'ⓑ', 'c': 'ⓒ', 'd': 'ⓓ', 'e': 'ⓔ', 'f': 'ⓕ', 'g': 'ⓖ', 'h': 'ⓗ', 'i': 'ⓘ', 'j': 'ⓙ', 'k': 'ⓚ', 'l': 'ⓛ', 'm': 'ⓜ', 'n': 'ⓝ', 'o': 'ⓞ', 'p': 'ⓟ', 'q': 'ⓠ', 'r': 'ⓡ', 's': 'ⓢ', 't': 'ⓣ', 'u': 'ⓤ', 'v': 'ⓥ', 'w': 'ⓦ', 'x': 'ⓧ', 'y': 'ⓨ', 'z': 'ⓩ', 'A': 'Ⓐ', 'B': 'Ⓑ', 'C': 'Ⓒ', 'D': 'Ⓓ', 'E': 'Ⓔ', 'F': 'Ⓕ', 'G': 'Ⓖ', 'H': 'Ⓗ', 'I': 'Ⓘ', 'J': 'Ⓙ', 'K': 'Ⓚ', 'L': 'Ⓛ', 'M': 'Ⓜ', 'N': 'Ⓝ', 'O': 'Ⓞ', 'P': 'Ⓟ', 'Q': 'Ⓠ', 'R': 'Ⓡ', 'S': 'Ⓢ', 'T': 'Ⓣ', 'U': 'Ⓤ', 'V': 'Ⓥ', 'W': 'Ⓦ', 'X': 'Ⓧ', 'Y': 'Ⓨ', 'Z': 'Ⓩ' },
+        boldFrakturMap: { 'a': '𝖆', 'b': '𝖇', 'c': '𝖈', 'd': '𝖉', 'e': '𝖊', 'f': '𝖋', 'g': '𝖌', 'h': '𝖍', 'i': '𝖎', 'j': '𝖏', 'k': '𝖐', 'l': '𝖑', 'm': '𝖒', 'n': '𝖓', 'o': '𝖔', 'p': '𝖕', 'q': '𝖖', 'r': '𝖗', 's': '𝖘', 't': '𝖙', 'u': '𝖚', 'v': '𝖛', 'w': '𝖜', 'x': '𝖝', 'y': '𝖞', 'z': '𝖟', 'A': '𝕬', 'B': '𝕭', 'C': '𝕮', 'D': '𝕯', 'E': '𝕰', 'F': '𝕱', 'G': '𝕲', 'H': '𝕳', 'I': '𝕴', 'J': '𝕵', 'K': '𝕶', 'L': '𝕷', 'M': '𝕸', 'N': '𝕹', 'O': '𝕺', 'P': '𝕻', 'Q': '𝕼', 'R': '𝕽', 'S': '𝕾', 'T': '𝕿', 'U': '𝖀', 'V': '𝖁', 'W': '𝖂', 'X': '𝖃', 'Y': '𝖄', 'Z': '𝖅' },
+        cursiveMap: { 'a': '𝒶', 'b': '𝒷', 'c': '𝒸', 'd': '𝒹', 'e': '𝑒', 'f': '𝒻', 'g': '𝑔', 'h': '𝒽', 'i': '𝒾', 'j': '𝒿', 'k': '𝓀', 'l': '𝓁', 'm': '𝓂', 'n': '𝓃', 'o': '𝑜', 'p': '𝓅', 'q': '𝓆', 'r': '𝓇', 's': '𝓈', 't': '𝓉', 'u': '𝓊', 'v': '𝓋', 'w': '𝓌', 'x': '𝓍', 'y': '𝓎', 'z': '𝓏', 'A': '𝒜', 'B': 'ℬ', 'C': '𝒞', 'D': '𝒟', 'E': 'ℰ', 'F': 'ℱ', 'G': '𝒢', 'H': 'ℋ', 'I': 'ℐ', 'J': '𝒥', 'K': '𝒦', 'L': 'ℒ', 'M': 'ℳ', 'N': '𝒩', 'O': '𝒪', 'P': '𝒫', 'Q': '𝒬', 'R': 'ℛ', 'S': '𝒮', 'T': '𝒯', 'U': '𝒰', 'V': '𝒱', 'W': '𝒲', 'X': '𝒳', 'Y': '𝒴', 'Z': '𝒵' },
+        monospaceMap: { 'a': '𝚊', 'b': '𝚋', 'c': '𝚌', 'd': '𝚍', 'e': '𝚎', 'f': '𝚏', 'g': '𝚐', 'h': '𝚑', 'i': '𝚒', 'j': '𝚓', 'k': '𝚔', 'l': '𝚕', 'm': '𝚖', 'n': '𝚗', 'o': '𝚘', 'p': '𝚙', 'q': '𝚚', 'r': '𝚛', 's': '𝚜', 't': '𝚝', 'u': '𝚞', 'v': '𝚟', 'w': '𝚠', 'x': '𝚡', 'y': '𝚢', 'z': '𝚣', 'A': '𝙰', 'B': '𝙱', 'C': '𝙲', 'D': '𝙳', 'E': '𝙴', 'F': '𝙵', 'G': '𝙶', 'H': '𝙷', 'I': '𝙸', 'J': '𝙹', 'K': '𝙺', 'L': '𝙻', 'M': '𝙼', 'N': '𝙽', 'O': '𝙾', 'P': '𝙿', 'Q': '𝚀', 'R': '𝚁', 'S': '𝚂', 'T': '𝚃', 'U': '𝚄', 'V': '𝚅', 'W': '𝚆', 'X': '𝚇', 'Y': '𝚈', 'Z': '𝚉' },
+        doubleStruckMap: { 'a': '𝕒', 'b': '𝕓', 'c': '𝕔', 'd': '𝕕', 'e': '𝕖', 'f': '𝕗', 'g': '𝕘', 'h': '𝕙', 'i': '𝕚', 'j': '𝕛', 'k': '𝕜', 'l': '𝕝', 'm': '𝕞', 'n': '𝕟', 'o': '𝕠', 'p': '𝕡', 'q': '𝕢', 'r': '𝕣', 's': '𝕤', 't': '𝕥', 'u': '𝕦', 'v': '𝕧', 'w': '𝕨', 'x': '𝕩', 'y': '𝕪', 'z': '𝕫', 'A': '𝔸', 'B': '𝔹', 'C': 'ℂ', 'D': '𝔻', 'E': '𝔼', 'F': '𝔽', 'G': '𝔾', 'H': 'ℍ', 'I': '𝕀', 'J': '𝕁', 'K': '𝕂', 'L': '𝕃', 'M': '𝕄', 'N': 'ℕ', 'O': '𝕆', 'P': 'ℙ', 'Q': 'ℚ', 'R': 'ℝ', 'S': '𝕊', 'T': '𝕋', 'U': '𝕌', 'V': '𝕍', 'W': '𝕎', 'X': '𝕏', 'Y': '𝕐', 'Z': 'ℤ' },
+        smallCapsMap: { 'a': 'ᴀ', 'b': 'ʙ', 'c': 'ᴄ', 'd': 'ᴅ', 'e': 'ᴇ', 'f': 'ꜰ', 'g': 'ɢ', 'h': 'ʜ', 'i': 'ɪ', 'j': 'ᴊ', 'k': 'ᴋ', 'l': 'ʟ', 'm': 'ᴍ', 'n': 'ɴ', 'o': 'ᴏ', 'p': 'ᴘ', 'q': 'ǫ', 'r': 'ʀ', 's': 'ꜱ', 't': 'ᴛ', 'u': 'ᴜ', 'v': 'ᴠ', 'w': 'ᴡ', 'x': 'x', 'y': 'ʏ', 'z': 'ᴢ', 'A': 'A', 'B': 'B', 'C': 'C', 'D': 'D', 'E': 'E', 'F': 'F', 'G': 'G', 'H': 'H', 'I': 'I', 'J': 'J', 'K': 'K', 'L': 'L', 'M': 'M', 'N': 'N', 'O': 'O', 'P': 'P', 'Q': 'Q', 'R': 'R', 'S': 'S', 'T': 'T', 'U': 'U', 'V': 'V', 'W': 'W', 'X': 'X', 'Y': 'Y', 'Z': 'Z' },
+        squaredMap: { 'a': '🄰', 'b': '🄱', 'c': '🄲', 'd': '🄳', 'e': '🄴', 'f': '🄵', 'g': '🄶', 'h': '🄷', 'i': '🄸', 'j': '🄹', 'k': '🄺', 'l': '🄻', 'm': '🄼', 'n': '🄽', 'o': '🄾', 'p': '🄿', 'q': '🅀', 'r': '🅁', 's': '🅂', 't': '🅃', 'u': '🅄', 'v': '🅅', 'w': '🅆', 'x': '🅇', 'y': '🅈', 'z': '🅉', 'A': '🄰', 'B': '🄱', 'C': '🄲', 'D': '🄳', 'E': '🄴', 'F': '🄵', 'G': '🄶', 'H': '🄷', 'I': '🄸', 'J': '🄹', 'K': '🄺', 'L': '🄻', 'M': '🄼', 'N': '🄽', 'O': '🄾', 'P': '🄿', 'Q': '🅀', 'R': '🅁', 'S': '🅂', 'T': '🅃', 'U': '🅄', 'V': '🅅', 'W': '🅆', 'X': '🅇', 'Y': '🅈', 'Z': '🅉' },
+        transform(text, map) { return text.split('').map(char => map[char] || char).join(''); },
+        arabicStyle4(text) {
+            const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZاأإآبتثجحخدذرزسشصضطظعغفقكلمنهويىةءؤئ';
+            const زخرفة = 'ặßçđěřġħíĵķĺṁñőpqřšťůvwxŷźẶßÇĐĚŘĠĦÍĴĶĹṀÑŐPQŘŠŤŮVWXŶŹاأإآبـتـثجـحـخـدذرزسـشـصـضـطـظـعـغـفـقـكـلـمـنـهـويـىةءؤئ';
+            return text.split('').map(char => {
+                const index = chars.indexOf(char);
+                return index !== -1 ? زخرفة[index] : char;
+            }).join('');
+        },
+        decorate(text) {
+            if (!text.trim()) return [];
+            return [
+                { name: 'زخرفة ببجي ♛', value: `♛『${text}』♛` }, { name: 'زخرفة ببجي ╾', value: `╾━╤デ╦︻ ${text} ︻╦デ╤━╼` },
+                { name: 'زخرفة فري فاير ꧁', value: `꧁༺${text}༻꧂` }, { name: 'زخرفة فري فاير ☠︎', value: `☠︎︎༒︎${text}༒︎☠︎︎` },
+                { name: 'زخرفة احترافية ⚡️', value: `⚡️${text}⚡️` }, { name: 'زخرفة أسطورية ◥', value: `◥${this.arabicStyle4(text)}◤` },
+                { name: 'زخرفة نارية 🔥', value: `🔥${text.split('').join(' ')}🔥` }, { name: 'زخرفة قلوب ♡', value: `♡´･ᴗ･\`♡ ${text} ♡´･ᴗ･\`♡` },
+                { name: 'زخرفة نجوم ✨', value: `✨✴️ ${text} ✴️✨`}, { name: 'زخرفة عربية 彡1彡', value: `★彡${text}彡★` },
+                { name: 'زخرفة عربية ꧁2꧂', value: `꧁${text}꧂` }, { name: 'زخرفة عربية 【3】', value: `【${text}】` },
+                { name: 'زخرفة عربية 🎼', value: `..•.¸¸•´¯\`•.¸¸.•.. ${text} ..•.¸¸•´¯\`•.¸¸.•..` }, { name: 'زخرفة عربية متشابكة', value: this.arabicStyle4(text) },
+                { name: 'زخرفة عربية ممتدة', value: text.split('').join('ـ') }, { name: 'Small Caps', value: this.transform(text, this.smallCapsMap) },
+                { name: 'Monospace', value: this.transform(text, this.monospaceMap) }, { name: 'Cursive', value: this.transform(text, this.cursiveMap) },
+                { name: 'Bold Fraktur', value: this.transform(text, this.boldFrakturMap) }, { name: 'Double Struck', value: this.transform(text, this.doubleStruckMap) },
+                { name: 'Squared', value: this.transform(text, this.squaredMap) }, { name: 'Circled', value: this.transform(text, this.circledMap) },
+                { name: 'Upside Down', value: this.transform(text, this.upsideDownMap) },
+            ];
+        }
+    };
+
+    // --- DOM ELEMENTS ---
+    const appContent = document.getElementById('app-content');
+    const navLinksContainer = document.getElementById('nav-links');
+
+    // --- RENDER FUNCTIONS ---
+    function renderNav() {
+        navLinksContainer.innerHTML = navLinks.map(link => `
+            <li>
+                <a href="${link.path}" class="px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base font-semibold text-gray-300 hover:bg-purple-700/50 transition-all duration-300 block">
+                    ${link.label}
+                </a>
+            </li>
+        `).join('');
+    }
+    
+    function debounce(func, delay) {
+        let timeout;
+        return function(...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), delay);
+        };
+    }
+
+    function renderDecorationPage(route) {
+        const template = document.getElementById('decoration-page-template').content.cloneNode(true);
+        appContent.innerHTML = '';
+        appContent.appendChild(template);
+
+        appContent.querySelector('#page-title').textContent = route.data.title;
+        appContent.querySelector('#page-description').textContent = route.data.description;
+        
+        const textInput = appContent.querySelector('#text-input');
+        const resultsContainer = appContent.querySelector('#results-container');
+        resultsContainer.innerHTML = decorationWelcomeContent;
+
+        const debouncedRender = debounce((text) => {
+             if (text.trim().length > 0) {
+                const results = DecorationUtil.decorate(text);
+                resultsContainer.innerHTML = `
+                    <h2 class="text-2xl font-bold text-center mb-6 text-gray-200">نتائج الزخرفة:</h2>
+                    <div class="grid grid-cols-1 gap-4">
+                        ${results.map(result => `
+                            <div class="animate-fade-in-item">
+                                <h3 class="text-sm text-purple-300 mb-2 mr-2 font-semibold">${result.name}</h3>
+                                <div class="bg-gray-800 rounded-lg p-4 flex flex-col sm:flex-row items-center justify-between gap-4 transition-all duration-300 hover:bg-gray-700/50">
+                                    <p class="text-xl text-center sm:text-right flex-grow font-mono bg-gray-900/50 p-3 rounded-md w-full sm:w-auto overflow-x-auto">${result.value}</p>
+                                    <button data-copy-value="${result.value}" class="copy-btn w-full sm:w-auto px-6 py-2 rounded-md font-bold transition-all duration-300 ease-in-out text-white flex-shrink-0 bg-purple-600 hover:bg-purple-700">
+                                        <span>نسخ</span>
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else {
+                resultsContainer.innerHTML = decorationWelcomeContent;
+            }
+        }, 300);
+
+        textInput.addEventListener('input', (e) => {
+            debouncedRender(e.target.value);
+        });
+    }
+
+    function renderSymbolsPage(route, categories, theme) {
+        const isIslamic = theme === 'islamic';
+        const templateId = isIslamic ? 'islamic-symbols-page-template' : 'symbols-page-template';
+        const containerId = isIslamic ? 'islamic-symbols-container' : 'symbols-container';
+        
+        const template = document.getElementById(templateId).content.cloneNode(true);
+        appContent.innerHTML = '';
+        appContent.appendChild(template);
+
+        appContent.querySelector('#page-title').textContent = route.data.title;
+        appContent.querySelector('#page-description').textContent = route.data.description;
+        
+        const container = appContent.querySelector(`#${containerId}`);
+        container.innerHTML = ''; // Clear container for incremental rendering
+
+        let categoryIndex = 0;
+        function renderNextCategory() {
+            if (categoryIndex >= categories.length) return;
+            
+            const category = categories[categoryIndex];
+            const section = document.createElement('section');
+            section.className = 'mb-12 animate-fade-in';
+            section.style.opacity = '0';
+
+            section.innerHTML = `
+                <h2 class="text-2xl sm:text-3xl font-bold ${isIslamic ? 'text-teal-300 border-teal-500/30' : 'text-purple-300 border-purple-500/30'} mb-6 pb-2 border-b-2">
+                    ${category.title}
+                </h2>
+                <div class="grid ${isIslamic ? 'grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3' : 'grid-cols-5 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 xl:grid-cols-15 gap-2'}">
+                    ${category.symbols.map(symbol => `
+                        <div tabindex="0" data-copy-value="${symbol}" class="copy-symbol-btn relative flex items-center justify-center ${isIslamic ? 'h-20 text-xl sm:text-2xl p-2' : 'h-16 text-3xl'} bg-gray-800/50 rounded-lg cursor-pointer transition-all duration-200 ease-in-out ${isIslamic ? 'hover:bg-teal-600/50' : 'hover:bg-purple-600/50'} hover:scale-110 hover:shadow-lg focus:outline-none focus:ring-2 ${isIslamic ? 'focus:ring-teal-400' : 'focus:ring-purple-400'}">
+                            <span class="text-center">${symbol}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            container.appendChild(section);
+            
+            // Trigger animation
+            requestAnimationFrame(() => {
+                section.style.opacity = '1';
+            });
+
+            categoryIndex++;
+            requestAnimationFrame(renderNextCategory);
+        }
+        
+        renderNextCategory();
+    }
+
+    // --- EVENT HANDLING & ROUTING ---
+    function copyText(value, element) {
+        if (!navigator.clipboard) return;
+        navigator.clipboard.writeText(value).then(() => {
+            const originalText = element.innerHTML;
+            element.innerHTML = '<span>تم النسخ!</span>';
+            element.classList.remove('bg-purple-600', 'hover:bg-purple-700');
+            element.classList.add('bg-green-600');
+            
+            setTimeout(() => {
+                element.innerHTML = originalText;
+                element.classList.remove('bg-green-600');
+                element.classList.add('bg-purple-600', 'hover:bg-purple-700');
+            }, 2000);
+        }).catch(err => console.error('Failed to copy: ', err));
+    }
+
+    function copySymbol(value, element) {
+        if (!navigator.clipboard) return;
+        navigator.clipboard.writeText(value).then(() => {
+            const existingPopup = document.querySelector('.copied-popup');
+            if (existingPopup) existingPopup.remove();
+
+            const popup = document.createElement('div');
+            popup.className = 'copied-popup absolute -top-8 left-1/2 -translate-x-1/2 bg-green-600 text-white text-xs font-bold px-2 py-1 rounded-md shadow-lg z-10 animate-popup';
+            popup.textContent = 'تم النسخ!';
+            element.appendChild(popup);
+            
+            setTimeout(() => {
+                popup.remove();
+            }, 1500);
+        }).catch(err => console.error('Failed to copy: ', err));
+    }
+    
+    appContent.addEventListener('click', (e) => {
+        const copyBtn = e.target.closest('.copy-btn');
+        if (copyBtn) {
+            copyText(copyBtn.dataset.copyValue, copyBtn);
+        }
+
+        const copySymbolBtn = e.target.closest('.copy-symbol-btn');
+        if (copySymbolBtn) {
+            copySymbol(copySymbolBtn.dataset.copyValue, copySymbolBtn);
+        }
+    });
+
+    document.body.addEventListener('click', e => {
+        const link = e.target.closest('a');
+        if (link && link.origin === window.location.origin) {
+            e.preventDefault();
+            const path = link.getAttribute('href');
+            if (path !== window.location.pathname) {
+                history.pushState({}, '', path);
+                router();
+            }
+        }
+    });
+
+    function router() {
+        const path = getPath();
+        const route = routes[path] || routes['/']; // Fallback to home page for unknown paths
+
+        document.title = route.title;
+        // In a static setup, we can't change meta tags for SEO crawlers after load, but we set good defaults.
+
+        switch(route.type) {
+            case 'decoration':
+                renderDecorationPage(route);
+                break;
+            case 'symbols':
+                renderSymbolsPage(route, symbolCategories, 'default');
+                break;
+            case 'islamic-symbols':
+                renderSymbolsPage(route, islamicSymbolCategories, 'islamic');
+                break;
+        }
+        
+        // Update active nav link
+        navLinksContainer.querySelectorAll('a').forEach(a => {
+            if (a.getAttribute('href') === path) {
+                a.classList.add('bg-purple-600', 'text-white', 'shadow-md');
+            } else {
+                a.classList.remove('bg-purple-600', 'text-white', 'shadow-md');
+            }
+        });
+    }
+
+    // --- INITIALIZATION ---
+    document.getElementById('current-year').textContent = new Date().getFullYear();
+    renderNav();
+    window.addEventListener('popstate', router);
+    router(); // Initial load
+});
+</script>
+
+</body>
+</html>
